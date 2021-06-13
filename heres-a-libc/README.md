@@ -204,4 +204,22 @@ Load `libc.so.6` in to **Ghidra/Cutter** (Reverse Engineering tools) and search 
 bin_sh_offset = 0x2b40fa
 bin_sh_address = base_libc_address + bin_sh_offset
 ```
-6. 
+
+### Problem ran into
+1. Leak function
+
+`scanf` is not a good function to leak an address, we change to `setbuf` function ( limited in what functions are availble in libc )
+
+
+2. Stack Alignment
+
+In modern Linux system, `libc` have certain instructions that require the Stack Pointer (RSP) be 16 by the line aka **Stack pointer's last digit is zero ( \x00 )** => If it's not zero, will return in SIG Fault
+
+**Fix stack alignment** 
+We add a `ret` instruction to the payload to fix stack alignment
+
+What `ret` instruction do is it pop the value in the stack and modify `RSP+8`
+
+```python
+ret_instruction = 0x40052e
+```
